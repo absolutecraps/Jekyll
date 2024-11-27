@@ -1,0 +1,59 @@
+---
+layout: default
+title: Gallery
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }}</title>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('https://media-gallery.justsoicanpostheretoday.workers.dev//gallery')
+                .then(response => response.json())
+                .then(data => {
+                    const gallery = document.querySelector('.gallery');
+                    data.forEach(item => {
+                        const thumbnail = document.createElement('div');
+                        thumbnail.classList.add('thumbnail');
+                        thumbnail.setAttribute('data-modal-target', `#modal-${item.id}`);
+                        
+                        thumbnail.innerHTML = `<img src="${item.thumbnail}" alt="${item.title}">`;
+                        gallery.appendChild(thumbnail);
+
+                        // Add modal for each item
+                        const modal = document.createElement('div');
+                        modal.classList.add('modal');
+                        modal.id = `modal-${item.id}`;
+                        
+                        modal.innerHTML = `
+                            <span class="close">&times;</span>
+                            ${item.type === 'image' ? `<img class="modal-content" src="${item.fullsize}">` : `
+                            <video class="modal-content" controls>
+                                <source src="${item.fullsize}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>`}
+                            <div id="caption">${item.description}</div>`;
+                        document.body.appendChild(modal);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li class="navbar-item"><a href="{{ '/' | relative_url }}">Home</a></li>
+            <li class="navbar-item"><a href="{{ '/gallery/' | relative_url }}">Gallery</a></li>
+        </ul>
+    </nav>
+    <div class="content">
+        <div class="gallery"></div>
+    </div>
+    <script src="{{ '/assets/js/script.js' | relative_url }}"></script>
+</body>
+</html>

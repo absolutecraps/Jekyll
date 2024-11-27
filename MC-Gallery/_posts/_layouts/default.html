@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title }}</title>
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+</head>
+<body>
+    <nav class="navbar">
+        <ul>
+            <li class="navbar-item"><a href="{{ '/' | relative_url }}">Home</a></li>
+            <li class="navbar-item"><a href="{{ '/gallery/' | relative_url }}">Gallery</a></li>
+            <!-- Add more navbar items here -->
+        </ul>
+    </nav>
+    <div class="content">
+        {{ content }}
+    </div>
+    <script src="{{ '/assets/js/script.js' | relative_url }}"></script>
+</body>
+</html>
