@@ -3,57 +3,67 @@ layout: default
 title: Gallery
 ---
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page.title }}</title>
-    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('https://media-gallery.justsoicanpostheretoday.workers.dev//gallery')
+<div class="gallery"></div>
+<div id="breadcrumb"></div>
+
+<!-- Modal Structure Template -->
+<div class="modal" id="modal-template" style="display:none;">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="full-image">
+    <div id="caption"></div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        console.log("Fetching gallery data...");
+
+        // Function to load a folder's contents
+        function loadFolder(prefix = '') {
+            fetch(`https://absolutecraps.uk/files?prefix=${encodeURIComponent(prefix)}`)
                 .then(response => response.json())
                 .then(data => {
-                    const gallery = document.querySelector('.gallery');
-                    data.forEach(item => {
-                        const thumbnail = document.createElement('div');
-                        thumbnail.classList.add('thumbnail');
-                        thumbnail.setAttribute('data-modal-target', `#modal-${item.id}`);
-                        
-                        thumbnail.innerHTML = `<img src="${item.thumbnail}" alt="${item.title}">`;
-                        gallery.appendChild(thumbnail);
+                    console.log("Gallery data received:", data);
 
-                        // Add modal for each item
-                        const modal = document.createElement('div');
-                        modal.classList.add('modal');
-                        modal.id = `modal-${item.id}`;
-                        
-                        modal.innerHTML = `
-                            <span class="close">&times;</span>
-                            ${item.type === 'image' ? `<img class="modal-content" src="${item.fullsize}">` : `
-                            <video class="modal-content" controls>
-                                <source src="${item.fullsize}" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>`}
-                            <div id="caption">${item.description}</div>`;
-                        document.body.appendChild(modal);
+                    // Render breadcrumb
+                    const breadcrumb = document.getElementById('breadcrumb');
+                    const parts = prefix.split('/').filter(Boolean);
+                    breadcrumb.innerHTML = parts.map((part, index) => `
+                        <a href="#" onclick="loadFolder('${parts.slice(0, index + 1).join('/')}/')">${part}</a>
+                    `).join(' / ');
+
+                    const gallery = document.querySelector('.gallery');
+                    gallery.innerHTML = ''; // Clear existing content
+
+                    // Render folders
+                    data.folders.forEach(folder => {
+                        const folderDiv = document.createElement('div');
+                        folderDiv.classList.add('folder');
+                        folderDiv.textContent = folder.name;
+                        folderDiv.onclick = () => loadFolder(folder.fullPath);
+                        gallery.appendChild(folderDiv);
+                    });
+
+                    // Render images
+                    data.images.forEach(image => {
+                        const imgDiv = document.createElement('div');
+                        imgDiv.classList.add('thumbnail');
+                        imgDiv.innerHTML = `<img src="${image.thumbnail}" alt="${image.description}">`;
+                        gallery.appendChild(imgDiv);
+                    });
+
+                    // Render videos
+                    data.videos.forEach(video => {
+                        const vidDiv = document.createElement('div');
+                        vidDiv.classList.add('thumbnail');
+                        vidDiv.innerHTML = `<img src="${video.thumbnail}" alt="${video.description}">`;
+                        gallery.appendChild(vidDiv);
                     });
                 })
-                .catch(error => console.error('Error:', error));
-        });
-    </script>
-</head>
-<body>
-    <nav class="navbar">
-        <ul>
-            <li class="navbar-item"><a href="{{ '/' | relative_url }}">Home</a></li>
-            <li class="navbar-item"><a href="{{ '/gallery/' | relative_url }}">Gallery</a></li>
-        </ul>
-    </nav>
-    <div class="content">
-        <div class="gallery"></div>
-    </div>
-    <script src="{{ '/assets/js/script.js' | relative_url }}"></script>
-</body>
-</html>
+                .catch(error => console.error('Error fetching gallery data:', error));
+        }
+
+        // Initialize with the root folder
+        loadFolder('');
+        window.loadFolder = loadFolder; // Expose globally for breadcrumb links
+    });
+</script>

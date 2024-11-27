@@ -36,6 +36,29 @@
     transform: scale(1.05);
     transition: transform 0.3s;
 }
+.folder {
+    margin: 10px;
+    padding: 10px;
+    background-color: #ccc;
+    cursor: pointer;
+    border: 1px solid #aaa;
+}
+.folder:hover {
+    background-color: #bbb;
+}
+
+/* Breadcrumb Styles */
+#breadcrumb {
+    margin-bottom: 10px;
+}
+#breadcrumb a {
+    color: blue;
+    text-decoration: underline;
+    margin-right: 5px;
+}
+#breadcrumb a:hover {
+    color: darkblue;
+}
 
 /* Modal Styles */
 .modal {
