@@ -36,16 +36,7 @@
     transform: scale(1.05);
     transition: transform 0.3s;
 }
-.folder {
-    margin: 10px;
-    padding: 10px;
-    background-color: #ccc;
-    cursor: pointer;
-    border: 1px solid #aaa;
-}
-.folder:hover {
-    background-color: #bbb;
-}
+
 
 /* Breadcrumb Styles */
 #breadcrumb {
@@ -59,6 +50,28 @@
 #breadcrumb a:hover {
     color: darkblue;
 }
+
+.breadcrumb-link {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.breadcrumb-link:hover {
+    color: darkblue;
+}
+
+.folder {
+    margin: 10px;
+    padding: 10px;
+    background-color: #ccc;
+    cursor: pointer;
+    border: 1px solid #aaa;
+}
+.folder:hover {
+    background-color: #bbb;
+}
+
+
 
 /* Modal Styles */
 .modal {

@@ -18,49 +18,77 @@ title: Gallery
         console.log("Fetching gallery data...");
 
         // Function to load a folder's contents
-        function loadFolder(prefix = '') {
-            fetch(`https://absolutecraps.uk/files?prefix=${encodeURIComponent(prefix)}`)
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Gallery data received:", data);
+            function loadFolder(prefix = '') {
+                console.log(`Loading folder: ${prefix}`);
 
-                    // Render breadcrumb
-                    const breadcrumb = document.getElementById('breadcrumb');
-                    const parts = prefix.split('/').filter(Boolean);
-                    breadcrumb.innerHTML = parts.map((part, index) => `
-                        <a href="#" onclick="loadFolder('${parts.slice(0, index + 1).join('/')}/')">${part}</a>
-                    `).join(' / ');
+                fetch(`https://absolutecraps.uk/files?prefix=${encodeURIComponent(prefix)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Gallery data received:", data);
 
-                    const gallery = document.querySelector('.gallery');
-                    gallery.innerHTML = ''; // Clear existing content
+                        // Render breadcrumb
+                        const breadcrumb = document.getElementById('breadcrumb');
+                        const parts = prefix.split('/').filter(Boolean);
+                        breadcrumb.innerHTML = parts.map((part, index) => `
+                            <span class="breadcrumb-link" data-prefix="${parts.slice(0, index + 1).join('/')}/">${part}</span>
+                        `).join(' / ');
 
-                    // Render folders
-                    data.folders.forEach(folder => {
-                        const folderDiv = document.createElement('div');
-                        folderDiv.classList.add('folder');
-                        folderDiv.textContent = folder.name;
-                        folderDiv.onclick = () => loadFolder(folder.fullPath);
-                        gallery.appendChild(folderDiv);
-                    });
+                        // Attach event listeners to breadcrumb links
+                        document.querySelectorAll('.breadcrumb-link').forEach(link => {
+                            link.onclick = (e) => {
+                                const targetPrefix = e.target.getAttribute('data-prefix');
+                                loadFolder(targetPrefix);
+                            };
+                        });
 
-                    // Render images
-                    data.images.forEach(image => {
-                        const imgDiv = document.createElement('div');
-                        imgDiv.classList.add('thumbnail');
-                        imgDiv.innerHTML = `<img src="${image.thumbnail}" alt="${image.description}">`;
-                        gallery.appendChild(imgDiv);
-                    });
+                        // Render gallery content
+                        const gallery = document.querySelector('.gallery');
+                        gallery.innerHTML = ''; // Clear existing content
 
-                    // Render videos
-                    data.videos.forEach(video => {
-                        const vidDiv = document.createElement('div');
-                        vidDiv.classList.add('thumbnail');
-                        vidDiv.innerHTML = `<img src="${video.thumbnail}" alt="${video.description}">`;
-                        gallery.appendChild(vidDiv);
-                    });
-                })
-                .catch(error => console.error('Error fetching gallery data:', error));
-        }
+                        // Render folders
+                        if (data.folders.length > 0) {
+                            data.folders.forEach(folder => {
+                                const folderDiv = document.createElement('div');
+                                folderDiv.classList.add('folder');
+                                folderDiv.textContent = folder.name;
+                                folderDiv.setAttribute('data-prefix', folder.fullPath);
+                                folderDiv.onclick = (e) => {
+                                    const targetPrefix = e.target.getAttribute('data-prefix');
+                                    loadFolder(targetPrefix);
+                                };
+                                gallery.appendChild(folderDiv);
+                            });
+                        } else {
+                            gallery.innerHTML += '<p>No folders found.</p>';
+                        }
+
+                        // Render images
+                        if (data.images.length > 0) {
+                            data.images.forEach(image => {
+                                const imgDiv = document.createElement('div');
+                                imgDiv.classList.add('thumbnail');
+                                imgDiv.innerHTML = `<img src="${image.thumbnail}" alt="${image.description}">`;
+                                gallery.appendChild(imgDiv);
+                            });
+                        } else {
+                            gallery.innerHTML += '<p>No images found.</p>';
+                        }
+
+                        // Render videos
+                        if (data.videos.length > 0) {
+                            data.videos.forEach(video => {
+                                const vidDiv = document.createElement('div');
+                                vidDiv.classList.add('thumbnail');
+                                vidDiv.innerHTML = `<img src="${video.thumbnail}" alt="${video.description}">`;
+                                gallery.appendChild(vidDiv);
+                            });
+                        } else {
+                            gallery.innerHTML += '<p>No videos found.</p>';
+                        }
+                    })
+                    .catch(error => console.error('Error fetching gallery data:', error));
+            }
+
 
         // Initialize with the root folder
         loadFolder('');
